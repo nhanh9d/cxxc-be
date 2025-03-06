@@ -1,0 +1,16 @@
+import { Module } from '@nestjs/common';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { UserModule } from './user/user.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { dbConfig } from './config/database.config';
+import { FileModule } from './file/file.module';
+import { VehicleModule } from './vehicle/vehicle.module';
+import { EventModule } from './event/event.module';
+
+@Module({
+  imports: [TypeOrmModule.forRoot(dbConfig), UserModule, FileModule, VehicleModule, EventModule],
+  controllers: [AppController],
+  providers: [AppService],
+})
+export class AppModule { }
