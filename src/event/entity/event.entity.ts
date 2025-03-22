@@ -1,6 +1,9 @@
-import { BaseEntity } from "src/shared/entity/base.entity";
-import { Column, Entity, OneToMany } from "typeorm";
+import { Column, Entity, ManyToOne, OneToMany } from "typeorm";
 import { EventRule } from "./event-rule.entity";
+import { BaseEntity } from "../../shared/entity/base.entity";
+import { User } from "../../user/entity/user.entity";
+import { EventMember } from "./event-member.entity";
+import { EventInvitation } from "./event-invitation.entity";
 
 export enum EventStatus {
   opened,
@@ -31,12 +34,21 @@ export class Event extends BaseEntity {
   @Column({ nullable: true })
   description?: string;
 
-  @Column()
-  size: number;
+  @Column({ nullable: true })
+  size?: number;
 
   @Column({ type: "enum", enum: EventStatus, default: EventStatus.opened })
-  status: EventStatus;
+  status?: EventStatus;
 
-  @OneToMany(() => EventRule, rule => rule.eventId)
+  @ManyToOne(() => User, user => user.createdEvents, { onDelete: 'CASCADE' })
+  creator: User;
+
+  @OneToMany(() => EventMember, member => member.event)
+  members: EventMember[];
+
+  @OneToMany(() => EventRule, rule => rule.event)
   rules: EventRule[];
+
+  @OneToMany(() => EventInvitation, invitation => invitation.event)
+  invitations: EventInvitation[];
 }

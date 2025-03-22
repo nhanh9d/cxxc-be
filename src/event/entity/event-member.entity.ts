@@ -1,7 +1,7 @@
-import { BaseEntity } from "src/shared/entity/base.entity";
-import { Column, Entity, JoinColumn, OneToOne } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne } from "typeorm";
 import { Event } from "./event.entity";
-import { User } from "src/user/entity/user.entity";
+import { User } from "../../user/entity/user.entity";
+import { BaseEntity } from "../../shared/entity/base.entity";
 
 export enum RoleType {
   host,
@@ -22,17 +22,9 @@ export class EventMember extends BaseEntity {
   @Column()
   memberRole: RoleType;
 
-  @Column()
-  eventId: number;
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  user: User;
 
-  @OneToOne(() => Event)
-  @JoinColumn()
+  @ManyToOne(() => Event, event => event.members, { onDelete: 'CASCADE' })
   event: Event;
-
-  @Column()
-  userId: number;
-
-  @OneToOne(() => User)
-  @JoinColumn()
-  member: User;
 }

@@ -7,9 +7,17 @@ import { dbConfig } from './config/database.config';
 import { FileModule } from './file/file.module';
 import { VehicleModule } from './vehicle/vehicle.module';
 import { EventModule } from './event/event.module';
+import { SharedModule } from './shared/shared.module';
 
 @Module({
-  imports: [TypeOrmModule.forRoot(dbConfig), UserModule, FileModule, VehicleModule, EventModule],
+  imports: [
+    SharedModule,
+    TypeOrmModule.forRoot(dbConfig),
+    UserModule,
+    FileModule,
+    VehicleModule,
+    EventModule
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

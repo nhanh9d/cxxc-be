@@ -1,6 +1,6 @@
-
-import { BaseEntity } from 'src/shared/entity/base.entity';
-import { Entity, Column } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import { BaseEntity } from "../../shared/entity/base.entity";
+import { User } from "../../user/entity/user.entity";
 
 export enum VehicleType {
   bike,
@@ -11,6 +11,9 @@ export enum VehicleType {
 
 @Entity()
 export class Vehicle extends BaseEntity {
+  @PrimaryGeneratedColumn()
+  id: number;
+
   @Column()
   fullname: string;
 
@@ -23,6 +26,6 @@ export class Vehicle extends BaseEntity {
   @Column('varchar', { nullable: true, array: true })
   images: string[];
 
-  @Column()
-  userId: number;
+  @ManyToOne(() => User, user => user.vehicles, { onDelete: 'CASCADE' })
+  user: User;
 }

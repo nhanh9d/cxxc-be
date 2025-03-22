@@ -4,6 +4,7 @@ import { User } from './entity/user.entity';
 import { Repository } from 'typeorm';
 import { UserDto } from './dto/user.dto';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UserService {
@@ -12,19 +13,7 @@ export class UserService {
    */
   constructor(
     @InjectRepository(User)
-    private usersRepository: Repository<User>,
-    private jwtService: JwtService) {
-  }
-
-  async loginWithFirebase(firebaseId: string) {
-    const existingUser = await this.findByFirebaseId(firebaseId);
-
-    if (existingUser) {
-      const payload = { sub: existingUser.id, fullname: existingUser.fullname };
-      return {
-        access_token: await this.jwtService.signAsync(payload),
-      };
-    }
+    private usersRepository: Repository<User>) {
   }
 
   async findByFirebaseId(firebaseId: string) {

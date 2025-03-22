@@ -2,36 +2,31 @@ import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from './entity/user.entity';
 import { UserDto } from './dto/user.dto';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Test } from './entity/test.entity';
+import { SignInResultDto } from './dto/signin-result.dto';
+import { AuthService } from './auth/auth.service';
+import { Public } from 'src/shared/decorators/public.decorator';
 
 @Controller('user')
 export class UserController {
   constructor(
-      @InjectRepository(Test)
-      private testRepository: Repository<Test>,
-      private readonly userService: UserService) { }
+    private readonly userService: UserService,
+    private readonly authService: AuthService) { }
 
-  @Get("/test")
-  async test(): Promise<boolean> {
-    console.log('here');
-    await this.testRepository.insert({profileImages: ["abc","def"]});
-    return true;
-  }
-
+  @Public()
   @Get("/firebase/:id")
-  async getUserById(@Param("id") id: string): Promise<UserDto> {
-    return await this.userService.findByFirebaseId(id);
+  async getUserById(@Param("id") id: string): Promise<SignInResultDto> {
+    return await this.authService.loginWithFirebase(id);
   }
 
+  @Public()
   @Post("/firebase")
   async createUser(@Body() payload: UserDto): Promise<User> {
     return await this.userService.createUser(payload);
   }
 
+  @Public()
   @Put("/firebase/:id")
-  async updateUser(@Body() payload: UserDto): Promise<boolean>{
+  async updateUser(@Body() payload: UserDto): Promise<boolean> {
     return await this.userService.updateUser(payload);
   }
 }

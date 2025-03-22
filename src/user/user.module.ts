@@ -3,21 +3,17 @@ import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entity/user.entity';
-import { JwtModule } from '@nestjs/jwt';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { Test } from './entity/test.entity';
-import { Vehicle } from 'src/vehicle/entity/vehicle.entity';
+import { Vehicle } from '../vehicle/entity/vehicle.entity';
+import { AuthService } from './auth/auth.service';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthGuard } from './auth/auth.guard';
 
 @Module({
-  imports: [JwtModule.registerAsync({
-    imports: [ConfigModule],
-    useFactory: async (configService: ConfigService) => ({
-      secret: configService.get<string>('SECRET'),
-    }),
-    inject: [ConfigService],
-  }),
-  TypeOrmModule.forFeature([User, Test, Vehicle])],
+  imports: [
+    TypeOrmModule.forFeature([User, Vehicle])
+  ],
   controllers: [UserController],
-  providers: [UserService]
+  providers: [UserService, AuthService, { provide: APP_GUARD, useClass: AuthGuard }],
+  exports: [TypeOrmModule]
 })
 export class UserModule { }

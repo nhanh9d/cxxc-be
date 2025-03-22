@@ -1,5 +1,7 @@
-import { BaseEntity } from "src/shared/entity/base.entity";
-import { Column, Entity } from "typeorm";
+import { User } from "../../user/entity/user.entity";
+import { Column, Entity, ManyToOne } from "typeorm";
+import { Event } from "./event.entity";
+import { BaseEntity } from "../../shared/entity/base.entity";
 
 export enum InvitationStatus {
   invited,
@@ -12,9 +14,12 @@ export class EventInvitation extends BaseEntity {
   @Column()
   status: InvitationStatus;
 
-  @Column()
-  eventId: number;
+  @ManyToOne(() => Event, event => event.id, { onDelete: 'CASCADE' })
+  event: Event;
 
-  @Column()
-  userId: number;
+  @ManyToOne(() => User, user => user.id, { onDelete: 'CASCADE' })
+  invitor: User;
+
+  @ManyToOne(() => User, user => user.id, { onDelete: 'CASCADE' })
+  invitee: User;
 }
