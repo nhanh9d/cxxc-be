@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { EditEventDto, EventDto, RegisterEventDto } from './dto/event.dto';
+import { EditEventDto, EventDto, EventMemberDto, RegisterEventDto } from './dto/event.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Event } from './entity/event.entity';
 import { Repository } from 'typeorm';
@@ -8,6 +8,8 @@ import { TokenInformationDto } from 'src/user/dto/token-info.dto';
 import { EventMember, MemberStatus, RoleType } from './entity/event-member.entity';
 import { User } from 'src/user/entity/user.entity';
 import { EventInvitation, InvitationStatus } from './entity/event-invitation.entity';
+import { RabbitMQService } from '../rabbitmq/rabbitmq.service';
+import { RMQ_PATTERNS } from '../rabbitmq/constants';
 
 @Injectable()
 export class EventService {
@@ -22,11 +24,13 @@ export class EventService {
     @InjectRepository(EventInvitation)
     private readonly eventInvitationRepository: Repository<EventInvitation>,
     @InjectRepository(User)
-    private userRepository: Repository<User>,) {
+    private userRepository: Repository<User>,
+    private readonly rabbitMQService: RabbitMQService
+  ) {
   }
 
-  async getEventById(id: number) {
-    return this.eventRepository.findOneBy({ id });
+  async getEventById(id: number, relations: string[] = []) {
+    return this.eventRepository.findOne({ where: { id }, relations });
   }
 
   async getEventStatistic(id: number) {
@@ -43,68 +47,56 @@ export class EventService {
     return { event, invitedNo, rejectedNo, members }
   }
 
-  async getPagedData(page: number, limit: number) {
-    const skip = (page - 1) * limit;
-    const [events, total] = await this.eventRepository.findAndCount({ 
-      skip,
-      take: limit,
-      order: {
-        createdAt: 'DESC'
-      }
-    });
+  async getPagedData(page: number, limit: number, mine: boolean, userId: number) {
+    const skip = page * limit;
+    const qb = this.eventRepository.createQueryBuilder('event')
+      .leftJoinAndSelect('event.members', 'members')
+      .leftJoinAndSelect('event.rules', 'rules')
+      .leftJoinAndSelect('event.creator', 'creator')
+      .leftJoinAndSelect('members.user', 'user')
+      .where(mine ? 'creator.id = :userId OR members.userId = :userId' : '1=1', { userId })
+      .skip(skip)
+      .take(limit)
+      .orderBy('event.createdAt', 'DESC');
 
-    return {
-      data: events,
-      total,
-      page,
-      limit
-    };
+    const events = await qb.getMany();
+    return events;
   }
 
-  async createNewEvent(payload: EventDto, creator: TokenInformationDto) {
+  async createNewEvent(payload: EventDto, user: TokenInformationDto) {
     const slug = slugify(payload.name.toLowerCase());
-    const user = await this.userRepository.findOneBy({ id: creator.sub });
-
-    if (!user) {
-      throw new Error("Người dùng không tồn tại");
-    }
-
     const event = await this.eventRepository.save({
       ...payload,
       slug,
-      creator: user
+      creator: { id: user.sub }
     });
 
-    await this.eventMemberRepository.save({
-      event,
-      user,
-      memberRole: RoleType.host,
-      status: MemberStatus.confirmed
-    })
-
-    return event
+    // await this.rabbitMQService.emit(RMQ_PATTERNS.EVENT.CREATED, event);
+    return event;
   }
 
-  async updateEvent(payload: EditEventDto, creator: TokenInformationDto) {
+  async updateEvent(payload: EditEventDto, user: TokenInformationDto) {
     const slug = slugify(payload.name.toLowerCase());
-    const user = await this.userRepository.findOneBy({ id: creator.sub });
+    const event = await this.eventRepository.findOne({
+      where: { id: payload.id, creator: { id: user.sub } }
+    });
 
-    if (!user) {
-      throw new Error("Người dùng không tồn tại");
-    }
-
-    const event = await this.eventRepository.findOne({ where: { id: payload.id } });
     if (!event) {
-      throw new Error('Không tìm thấy chuyến đi');
+      throw new Error('Event not found');
     }
 
-    this.eventRepository.merge(event, { ...payload, slug });
-    return await this.eventRepository.save(event);
+    const updatedEvent = await this.eventRepository.save({
+      ...event,
+      ...payload,
+      slug
+    });
+
+    await this.rabbitMQService.emit(RMQ_PATTERNS.EVENT.UPDATED, updatedEvent);
+    return updatedEvent;
   }
 
   async registerEvent(payload: RegisterEventDto, memberToken: TokenInformationDto) {
     const user = await this.userRepository.findOneBy({ id: memberToken.sub });
-
     if (!user) {
       throw new Error("Người dùng không tồn tại");
     }
@@ -112,6 +104,16 @@ export class EventService {
     const event = await this.eventRepository.findOne({ where: { id: payload.id } });
     if (!event) {
       throw new Error('Không tìm thấy chuyến đi');
+    }
+
+    const existingMember = await this.eventMemberRepository.findOne({
+      where: {
+        user: { id: user.id },
+        event: { id: event.id }
+      }
+    });
+    if (existingMember) {
+      throw new Error('Bạn đã đăng ký chuyến đi này rồi');
     }
 
     const member = await this.eventMemberRepository.save({
@@ -121,8 +123,40 @@ export class EventService {
       event
     });
 
-    //notify
+    await this.rabbitMQService.emit(RMQ_PATTERNS.EVENT.MEMBER_JOINED, {
+      eventName: event.name,
+      userId: memberToken.sub,
+      fullname: user.fullname,
+      avatar: user.profileImages[0],
+      joinedAt: member.createdAt
+    });
 
     return member;
+  }
+
+  async getEventCount(userId: number, mine: boolean = false) {
+    const qb = this.eventRepository.createQueryBuilder('event')
+      .leftJoinAndSelect('event.members', 'members')
+      .leftJoinAndSelect('event.creator', 'creator')
+      .where(mine ? 'creator.id = :userId OR members.userId = :userId' : '1=1', { userId })
+
+    const count = await qb.getCount();
+    return { count };
+  }
+
+  async leaveEvent(eventId: number, user: TokenInformationDto) {
+    const result = await this.eventMemberRepository.delete({
+      event: { id: eventId },
+      user: { id: user.sub }
+    });
+
+    if (result.affected > 0) {
+      await this.rabbitMQService.emit(RMQ_PATTERNS.EVENT.MEMBER_LEFT, {
+        eventId,
+        userId: user.sub
+      });
+    }
+
+    return result;
   }
 }
