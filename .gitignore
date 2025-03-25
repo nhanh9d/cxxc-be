@@ -54,3 +54,6 @@ pids
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# Firebase service account key
+cxxc-94c22-firebase-adminsdk-uf6vp-21626b7d43.json
