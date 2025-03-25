@@ -9,6 +9,9 @@ import { EventRule } from './entity/event-rule.entity';
 import { EventMember } from './entity/event-member.entity';
 import { EventInvitation } from './entity/event-invitation.entity';
 import { UserModule } from 'src/user/user.module';
+import { RabbitMQModule } from '../rabbitmq/rabbitmq.module';
+import { EventSchedulerService } from './event-scheduler.service';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -21,9 +24,11 @@ import { UserModule } from 'src/user/user.module';
     }),
     TypeOrmModule.forFeature([Event, EventRule, EventMember, EventInvitation]),
     UserModule,
+    RabbitMQModule,
+    ScheduleModule.forRoot(),
   ],
   controllers: [EventController],
-  providers: [EventService],
+  providers: [EventService, EventSchedulerService],
   exports: [EventService, TypeOrmModule]
 })
 export class EventModule { }

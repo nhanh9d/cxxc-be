@@ -4,12 +4,7 @@ import { BaseEntity } from "../../shared/entity/base.entity";
 import { User } from "../../user/entity/user.entity";
 import { EventMember } from "./event-member.entity";
 import { EventInvitation } from "./event-invitation.entity";
-
-export enum EventStatus {
-  opened,
-  finished,
-  cancelled
-}
+import { EventStatus } from '../enum/event-status.enum';
 
 @Entity()
 export class Event extends BaseEntity {
