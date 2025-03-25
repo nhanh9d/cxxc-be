@@ -11,4 +11,7 @@ export class UserDto {
   status?: UserStatus;
   profileImages: string[];
   verificationImages: string[];
+  pushToken?: string;
+  createdAt: Date;
+  updatedAt: Date;
 }

@@ -1,5 +1,5 @@
 import { Vehicle } from '../../vehicle/entity/vehicle.entity';
-import { Entity, Column, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, OneToMany } from 'typeorm';
 import { BaseEntity } from "../../shared/entity/base.entity";
 import { Event } from '../../event/entity/event.entity';
 import { EventMember } from '../../event/entity/event-member.entity';
@@ -40,6 +40,9 @@ export class User extends BaseEntity {
 
   @Column('varchar', { nullable: true, array: true })
   verificationImages: string[];
+
+  @Column({ nullable: true })
+  pushToken: string;
 
   @OneToMany(() => Vehicle, vehicle => vehicle.user)
   vehicles: Vehicle[];

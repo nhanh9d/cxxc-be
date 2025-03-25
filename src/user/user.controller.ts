@@ -1,10 +1,11 @@
-import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Req } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from './entity/user.entity';
 import { UserDto } from './dto/user.dto';
 import { SignInResultDto } from './dto/signin-result.dto';
 import { AuthService } from './auth/auth.service';
 import { Public } from 'src/shared/decorators/public.decorator';
+import { Request } from 'express';
 
 @Controller('user')
 export class UserController {
@@ -28,5 +29,17 @@ export class UserController {
   @Put("/firebase/:id")
   async updateUser(@Body() payload: UserDto): Promise<boolean> {
     return await this.userService.updateUser(payload);
+  }
+
+  @Get('me')
+  async getMe(@Req() request: Request) {
+    return await this.userService.findById(request.user.sub);
+  }
+
+  @Put('push-token')
+  async updatePushToken(@Req() request: Request, @Body('pushToken') pushToken: string) {
+    const userId = request.user.sub;
+    await this.userService.updatePushToken(userId, pushToken);
+    return { message: 'Push token updated successfully' };
   }
 }

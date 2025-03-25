@@ -3,8 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entity/user.entity';
 import { Repository } from 'typeorm';
 import { UserDto } from './dto/user.dto';
-import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UserService {
@@ -47,5 +45,17 @@ export class UserService {
     const updateResult = await this.usersRepository.save(updatedUser);
 
     return !!updateResult;
+  }
+
+  async findById(id: number): Promise<User | null> {
+    return await this.usersRepository.findOneBy({ id });
+  }
+
+  async findByPushToken(pushToken: string) {
+    return await this.usersRepository.findOneBy({ pushToken });
+  }
+
+  async updatePushToken(userId: number, pushToken: string) {
+    await this.usersRepository.update(userId, { pushToken });
   }
 }
