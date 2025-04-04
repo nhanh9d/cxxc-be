@@ -8,6 +8,8 @@ import { FileModule } from './file/file.module';
 import { VehicleModule } from './vehicle/vehicle.module';
 import { EventModule } from './event/event.module';
 import { SharedModule } from './shared/shared.module';
+import { NotificationModule } from './notification/notification.module';
+import { SystemConfigModule } from './system-config/system-config.module';  
 
 @Module({
   imports: [
@@ -16,7 +18,9 @@ import { SharedModule } from './shared/shared.module';
     UserModule,
     FileModule,
     VehicleModule,
-    EventModule
+    EventModule,
+    NotificationModule,
+    SystemConfigModule
   ],
   controllers: [AppController],
   providers: [AppService],
