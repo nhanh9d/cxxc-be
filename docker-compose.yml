@@ -74,7 +74,7 @@ services:
       # Firebase
       GOOGLE_APPLICATION_CREDENTIALS: /usr/src/app/cxxc-94c22-firebase-adminsdk-uf6vp-21626b7d43.json
     volumes:
-      - .:/usr/src/app:cached
+      #- .:/usr/src/app:cached
       - /usr/src/app/node_modules
       - ./cxxc-94c22-firebase-adminsdk-uf6vp-21626b7d43.json:/usr/src/app/cxxc-94c22-firebase-adminsdk-uf6vp-21626b7d43.json
 
