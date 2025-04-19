@@ -8,7 +8,7 @@ services:
     restart: always
     environment:
       POSTGRES_USER: cxxc
-      POSTGRES_PASSWORD: cxxc123
+      POSTGRES_PASSWORD: 6jie8yO8nt85
       POSTGRES_DB: cxxc
     ports:
       - "5432:5432"
@@ -26,7 +26,7 @@ services:
       - "9001:9001"  # Console
     environment:
       MINIO_ROOT_USER: cxxc
-      MINIO_ROOT_PASSWORD: cxxc123
+      MINIO_ROOT_PASSWORD: JdbP9QQs77w5
     volumes:
       - minio_data:/data
 
@@ -40,7 +40,7 @@ services:
       - "15672:15672"   # Management UI
     environment:
       RABBITMQ_DEFAULT_USER: cxxc
-      RABBITMQ_DEFAULT_PASS: cxxc123
+      RABBITMQ_DEFAULT_PASS: qAxg6mB0x8Jw
 
   # NestJS App
   app:
@@ -60,21 +60,21 @@ services:
       DB_HOST: cxxc_db
       DB_PORT: 5432
       DB_USERNAME: cxxc
-      DB_PASSWORD: cxxc123
+      DB_PASSWORD: 6jie8yO8nt85
       DB_DATABASE: cxxc
       
       # MinIO
       MINIO_ENDPOINT: http://minio:9000
       MINIO_ACCESS_KEY: cxxc
-      MINIO_SECRET_KEY: cxxc123
+      MINIO_SECRET_KEY: JdbP9QQs77w5
 
       # RabbitMQ
-      RABBITMQ_URI: amqp://cxxc:cxxc123@rabbitmq:5672
+      RABBITMQ_URI: amqp://cxxc:qAxg6mB0x8Jw@rabbitmq:5672
 
       # Firebase
       GOOGLE_APPLICATION_CREDENTIALS: /usr/src/app/cxxc-94c22-firebase-adminsdk-uf6vp-21626b7d43.json
     volumes:
-      - .:/usr/src/app
+      - .:/usr/src/app:cached
       - /usr/src/app/node_modules
       - ./cxxc-94c22-firebase-adminsdk-uf6vp-21626b7d43.json:/usr/src/app/cxxc-94c22-firebase-adminsdk-uf6vp-21626b7d43.json
 
