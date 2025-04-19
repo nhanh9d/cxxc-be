@@ -70,9 +70,13 @@ services:
 
       # RabbitMQ
       RABBITMQ_URI: amqp://cxxc:cxxc123@rabbitmq:5672
+
+      # Firebase
+      GOOGLE_APPLICATION_CREDENTIALS: /usr/src/app/cxxc-94c22-firebase-adminsdk-uf6vp-21626b7d43.json
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
+      - ./cxxc-94c22-firebase-adminsdk-uf6vp-21626b7d43.json:/usr/src/app/cxxc-94c22-firebase-adminsdk-uf6vp-21626b7d43.json
 
 volumes:
   pg_data:
