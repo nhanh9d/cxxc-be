@@ -10,5 +10,5 @@ export const AppDataSource = new DataSource({
   password: process.env.DB_PASSWORD || '6jie8yO8nt85',
   database: process.env.DB_DATABASE || 'cxxc',
   entities: [isCompiled ? 'dist/**/*.entity.js' : 'src/**/*.entity.ts'],
-  migrations: [isCompiled ? 'dist/migrations/*.js' : 'src/migrations/*.ts'],
+  migrations: [isCompiled ? 'dist/src/migrations/*.js' : 'src/migrations/*.ts'],
 });
