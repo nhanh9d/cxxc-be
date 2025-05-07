@@ -1,6 +1,6 @@
 
 # Use the official Node.js image as the base image
-FROM node:20
+FROM node:20-alpine
 
 # Set the working directory inside the container
 WORKDIR /usr/src/app
@@ -21,4 +21,4 @@ RUN npm run build
 EXPOSE 3000
 
 # Command to run the application
-CMD ["node", "dist/main"]
+CMD ["node", "dist/src/main"]
