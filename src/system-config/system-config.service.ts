@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SystemConfig, ConfigType } from './entity/system-config.entity';
-import { CreateSystemConfigDto, UpdateSystemConfigDto } from './dto/system-config.dto';
+import { CreateSystemConfigDto, SystemConfigDto, UpdateSystemConfigDto } from './dto/system-config.dto';
 import * as crypto from 'crypto';
 
 @Injectable()
@@ -10,8 +10,8 @@ export class SystemConfigService {
   constructor(
     @InjectRepository(SystemConfig)
     private readonly systemConfigRepository: Repository<SystemConfig>,
-  ) {}
-//YZaQsaujUmZDXlA87OaoIXWtGPwe2qnA/VFxdXtc9las54bLdw7pGYOtO7PZJEJV
+  ) { }
+  //YZaQsaujUmZDXlA87OaoIXWtGPwe2qnA/VFxdXtc9las54bLdw7pGYOtO7PZJEJV
 
   private encryptValue(value: string): string {
     const algorithm = 'aes-256-cbc';
@@ -34,55 +34,60 @@ export class SystemConfigService {
     return decrypted;
   }
 
-  
+
   async create(createDto: CreateSystemConfigDto): Promise<SystemConfig> {
     const config = this.systemConfigRepository.create(createDto);
-    
+
     if (config.isEncrypted) {
       config.value = this.encryptValue(config.value);
     }
-    
+
     return this.systemConfigRepository.save(config);
   }
 
-  async findAll(): Promise<SystemConfig[]> {
-    return this.systemConfigRepository.find();
+  async findAll(): Promise<SystemConfigDto[]> {
+    const configs = await this.systemConfigRepository.find({ where: { isActive: true } });
+
+    return configs.map(config => config.isEncrypted ? { ...config, value: this.decryptValue(config.value) } : { ...config });
   }
 
-  async findByKey(key: string): Promise<SystemConfig> {
-    const config = await this.systemConfigRepository.findOne({ where: { key } });
+  async findByKey(key: string): Promise<SystemConfigDto> {
+    const config = await this.systemConfigRepository.findOne({ where: { key, isActive: true } });
     if (!config) {
       throw new NotFoundException(`Không tìm thấy cấu hình với key ${key}`);
+    }
+
+    if (config.isEncrypted) {
+      config.value = this.decryptValue(config.value);
     }
     return config;
   }
 
   async getValue(key: string): Promise<string> {
     const config = await this.findByKey(key);
-    if (config.isEncrypted) {
-      return this.decryptValue(config.value);
-    }
-    return config.value;
+    return config.isEncrypted ? this.decryptValue(config.value) : config.value;
   }
 
   async update(key: string, updateDto: UpdateSystemConfigDto): Promise<SystemConfig> {
     const config = await this.findByKey(key);
-    
+
     // Nếu có cập nhật giá trị và cấu hình được mã hóa
     if (updateDto.value && config.isEncrypted) {
       updateDto.value = this.encryptValue(updateDto.value);
     }
-    
+
     Object.assign(config, updateDto);
     return this.systemConfigRepository.save(config);
   }
 
   async remove(key: string): Promise<void> {
-    const config = await this.findByKey(key);
+    const config = await this.systemConfigRepository.findOne({ where: { key } });
     await this.systemConfigRepository.remove(config);
   }
 
-  async findByType(type: ConfigType): Promise<SystemConfig[]> {
-    return this.systemConfigRepository.find({ where: { type } });
+  async findByType(type: ConfigType): Promise<SystemConfigDto[]> {
+    const configs = await this.systemConfigRepository.find({ where: { type, isActive: true } });
+
+    return configs.map(config => config.isEncrypted ? { ...config, value: this.decryptValue(config.value) } : { ...config });
   }
 } 
