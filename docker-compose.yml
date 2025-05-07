@@ -55,7 +55,7 @@ services:
       - rabbitmq
     environment:
       # PostgreSQL
-      DB_HOST: localhost
+      DB_HOST: 183.81.33.204
       DB_PORT: 5432
       DB_USERNAME: cxxc
       DB_PASSWORD: 6jie8yO8nt85
