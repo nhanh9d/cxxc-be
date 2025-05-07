@@ -8,10 +8,6 @@ services:
     restart: always
     ports:
       - "3000:3000"
-    depends_on:
-      - postgres
-      - minio
-      - rabbitmq
     environment:
       # PostgreSQL
       DB_HOST: 183.81.33.204
