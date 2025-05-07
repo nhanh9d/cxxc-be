@@ -8,6 +8,7 @@ import { JwtModule } from '@nestjs/jwt';
     ConfigModule.forRoot({
       isGlobal: true, // Make it accessible globally
       envFilePath: '.env', // Default is '.env', but specify explicitly if needed
+      ignoreEnvFile: process.env.NODE_ENV === 'production',
     }),
     JwtModule.registerAsync({
       imports: [ConfigModule],
