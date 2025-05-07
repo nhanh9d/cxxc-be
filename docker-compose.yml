@@ -1,9 +1,7 @@
-version: '3.8'
-
 services:
   # PostgreSQL service
   postgres:
-    image: postgres:14
+    image: postgres:15
     container_name: cxxc_db
     restart: always
     environment:
@@ -17,7 +15,7 @@ services:
 
   # MinIO service (S3-compatible storage)
   minio:
-    image: minio/minio
+    image: quay.io/minio/minio
     container_name: cxxc_files
     restart: always
     command: server /data --console-address ":9001"
@@ -32,7 +30,7 @@ services:
 
   # RabbitMQ service
   rabbitmq:
-    image: rabbitmq:3-management
+    image: rabbitmq
     container_name: cxxc_queue
     restart: always
     ports:
@@ -57,14 +55,14 @@ services:
       - rabbitmq
     environment:
       # PostgreSQL
-      DB_HOST: cxxc_db
+      DB_HOST: localhost
       DB_PORT: 5432
       DB_USERNAME: cxxc
       DB_PASSWORD: 6jie8yO8nt85
       DB_DATABASE: cxxc
       
       # MinIO
-      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ENDPOINT: http://file.cxxc.vn
       MINIO_ACCESS_KEY: cxxc
       MINIO_SECRET_KEY: JdbP9QQs77w5
 
@@ -74,7 +72,7 @@ services:
       # Firebase
       GOOGLE_APPLICATION_CREDENTIALS: /usr/src/app/cxxc-94c22-firebase-adminsdk-uf6vp-21626b7d43.json
     volumes:
-      #- .:/usr/src/app:cached
+      # - .:/usr/src/app:cached
       - /usr/src/app/node_modules
       - ./cxxc-94c22-firebase-adminsdk-uf6vp-21626b7d43.json:/usr/src/app/cxxc-94c22-firebase-adminsdk-uf6vp-21626b7d43.json
 

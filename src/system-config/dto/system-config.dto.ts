@@ -2,17 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsBoolean, IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { ConfigType, DataType } from '../entity/system-config.entity';
 
-export class CreateSystemConfigDto {
-  @ApiProperty({ description: 'Khóa cấu hình, phải là duy nhất' })
-  @IsString()
-  @IsNotEmpty()
-  key: string;
-
-  @ApiProperty({ description: 'Mô tả về cấu hình' })
-  @IsString()
-  @IsOptional()
-  description?: string;
-
+export class SystemConfigDto {
   @ApiProperty({ description: 'Loại cấu hình', enum: ConfigType })
   @IsEnum(ConfigType)
   type: ConfigType;
@@ -32,24 +22,26 @@ export class CreateSystemConfigDto {
   isEncrypted?: boolean;
 }
 
-export class UpdateSystemConfigDto {
+export class CreateSystemConfigDto extends SystemConfigDto {
+  @ApiProperty({ description: 'Khóa cấu hình, phải là duy nhất' })
+  @IsString()
+  @IsNotEmpty()
+  key: string;
+
   @ApiProperty({ description: 'Mô tả về cấu hình' })
   @IsString()
   @IsOptional()
   description?: string;
+}
 
-  @ApiProperty({ description: 'Giá trị của cấu hình' })
+export class UpdateSystemConfigDto extends CreateSystemConfigDto {
+  @ApiProperty({ description: 'Khóa cấu hình, phải là duy nhất' })
   @IsString()
-  @IsOptional()
-  value?: string;
-
-  @ApiProperty({ description: 'Có mã hóa giá trị hay không' })
-  @IsBoolean()
-  @IsOptional()
-  isEncrypted?: boolean;
+  @IsNotEmpty()
+  id: string;
 
   @ApiProperty({ description: 'Trạng thái kích hoạt' })
   @IsBoolean()
   @IsOptional()
   isActive?: boolean;
-} 
+}
