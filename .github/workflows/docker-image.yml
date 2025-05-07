@@ -25,6 +25,8 @@ jobs:
         ssh -i ~/.ssh/id_ed25519 ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
           cd ${{ secrets.APP_DIR }}
           git pull origin main
-          docker compose -f docker-compose.yml -f docker-compose.app.yml down
-          docker compose -f docker-compose.yml -f docker-compose.app.yml up -d --build
+          docker compose -f docker-compose.yml down
+          docker compose -f docker-compose.yml up -d --build
+          docker compose -f docker-compose.app.yml down
+          docker compose -f docker-compose.app.yml up -d --build
         EOF
