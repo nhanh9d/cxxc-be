@@ -40,42 +40,6 @@ services:
       RABBITMQ_DEFAULT_USER: cxxc
       RABBITMQ_DEFAULT_PASS: qAxg6mB0x8Jw
 
-  # NestJS App
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: cxxc_api
-    restart: always
-    ports:
-      - "3000:3000"
-    depends_on:
-      - postgres
-      - minio
-      - rabbitmq
-    environment:
-      # PostgreSQL
-      DB_HOST: 183.81.33.204
-      DB_PORT: 5432
-      DB_USERNAME: cxxc
-      DB_PASSWORD: 6jie8yO8nt85
-      DB_DATABASE: cxxc
-      
-      # MinIO
-      MINIO_ENDPOINT: https://file.cxxc.vn
-      MINIO_ACCESS_KEY: cxxc
-      MINIO_SECRET_KEY: JdbP9QQs77w5
-
-      # RabbitMQ
-      RABBITMQ_URI: amqp://cxxc:qAxg6mB0x8Jw@rabbitmq:5672
-
-      # Firebase
-      GOOGLE_APPLICATION_CREDENTIALS: /usr/src/app/cxxc-94c22-firebase-adminsdk-uf6vp-21626b7d43.json
-    volumes:
-      # - .:/usr/src/app:cached
-      - /usr/src/app/node_modules
-      - ./cxxc-94c22-firebase-adminsdk-uf6vp-21626b7d43.json:/usr/src/app/cxxc-94c22-firebase-adminsdk-uf6vp-21626b7d43.json
-
 volumes:
   pg_data:
   minio_data:
