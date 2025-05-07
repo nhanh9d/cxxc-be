@@ -20,5 +20,9 @@ RUN npm run build
 # Expose the application port
 EXPOSE 3000
 
+# Run migrations
+RUN npm run migration:run:prod
+RUN npm run migration:show:prod
+
 # Command to run the application
 CMD ["node", "dist/src/main"]
