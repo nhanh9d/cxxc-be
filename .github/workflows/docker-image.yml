@@ -20,6 +20,18 @@ jobs:
         chmod 600 ~/.ssh/id_ed25519
         ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
+    - name: Setup environment variables
+      run: |
+        echo "MINIO_ACCESS_KEY=${{ secrets.MINIO_ACCESS_KEY }}" >> .env
+        echo "MINIO_SECRET_KEY=${{ secrets.MINIO_SECRET_KEY }}" >> .env
+        echo "MINIO_ENDPOINT=${{ secrets.MINIO_ENDPOINT }}" >> .env
+        echo "MINIO_PORT=${{ secrets.MINIO_PORT }}" >> .env
+        echo "MINIO_USE_SSL=${{ secrets.MINIO_USE_SSL }}" >> .env
+        echo "FE_API_URL=${{ secrets.FE_API_URL }}" >> .env
+        echo "FE_FILE_URL=${{ secrets.FE_FILE_URL }}" >> .env
+        echo "BE_API_URL=${{ secrets.BE_API_URL }}" >> .env
+        echo "BE_FILE_URL=${{ secrets.BE_FILE_URL }}" >> .env
+
     - name: Deploy over SSH
       run: |
         ssh -i ~/.ssh/id_ed25519 ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'

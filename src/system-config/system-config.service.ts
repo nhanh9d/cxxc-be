@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { SystemConfig, ConfigType } from './entity/system-config.entity';
+import { SystemConfig, ConfigType, DataType } from './entity/system-config.entity';
 import { CreateSystemConfigDto, SystemConfigDto, UpdateSystemConfigDto } from './dto/system-config.dto';
 import * as crypto from 'crypto';
 
@@ -60,6 +60,7 @@ export class SystemConfigService {
     if (config.isEncrypted) {
       config.value = this.decryptValue(config.value);
     }
+
     return config;
   }
 
@@ -80,6 +81,11 @@ export class SystemConfigService {
     return this.systemConfigRepository.save(config);
   }
 
+  async upsert(key: string, updateDto: CreateSystemConfigDto): Promise<SystemConfig> {
+    await this.systemConfigRepository.upsert({ key, ...updateDto }, ['key']);
+    return this.systemConfigRepository.findOne({ where: { key } });
+  }
+
   async remove(key: string): Promise<void> {
     const config = await this.systemConfigRepository.findOne({ where: { key } });
     await this.systemConfigRepository.remove(config);
@@ -89,5 +95,10 @@ export class SystemConfigService {
     const configs = await this.systemConfigRepository.find({ where: { type, isActive: true } });
 
     return configs.map(config => config.isEncrypted ? { ...config, value: this.decryptValue(config.value) } : { ...config });
+  }
+
+  async getConfigValueByKey(key: string): Promise<any> {
+    const config = await this.findByKey(key);
+    return config.dataType === DataType.JSON ? JSON.parse(config.value) : config.value;
   }
 } 

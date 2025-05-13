@@ -3,6 +3,11 @@ import { IsBoolean, IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-valid
 import { ConfigType, DataType } from '../entity/system-config.entity';
 
 export class SystemConfigDto {
+  @ApiProperty({ description: 'Khóa cấu hình, phải là duy nhất' })
+  @IsString()
+  @IsNotEmpty()
+  key: string;
+
   @ApiProperty({ description: 'Loại cấu hình', enum: ConfigType })
   @IsEnum(ConfigType)
   type: ConfigType;
@@ -23,11 +28,6 @@ export class SystemConfigDto {
 }
 
 export class CreateSystemConfigDto extends SystemConfigDto {
-  @ApiProperty({ description: 'Khóa cấu hình, phải là duy nhất' })
-  @IsString()
-  @IsNotEmpty()
-  key: string;
-
   @ApiProperty({ description: 'Mô tả về cấu hình' })
   @IsString()
   @IsOptional()

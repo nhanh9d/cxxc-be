@@ -33,8 +33,8 @@ export class SystemConfigController {
   @ApiOperation({ summary: 'Lấy cấu hình theo key' })
   @ApiResponse({ status: 200, description: 'Lấy cấu hình thành công' })
   @ApiResponse({ status: 404, description: 'Không tìm thấy cấu hình' })
-  async findOne(@Param('key') key: string): Promise<SystemConfigDto> {
-    return this.systemConfigService.findByKey(key);
+  async findOne(@Param('key') key: string): Promise<any> {
+    return this.systemConfigService.getConfigValueByKey(key);
   }
 
   @Get(':key/value')
