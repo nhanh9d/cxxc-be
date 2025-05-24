@@ -15,6 +15,7 @@ services:
       DB_USERNAME: cxxc
       DB_PASSWORD: 6jie8yO8nt85
       DB_DATABASE: cxxc
+      SECRET: CXXC321
       
       # MinIO
       MINIO_ENDPOINT: https://file.cxxc.vn
