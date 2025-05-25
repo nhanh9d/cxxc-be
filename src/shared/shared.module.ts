@@ -1,6 +1,7 @@
 import { Global, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
+import { DiscordLogger } from './services/discord.log.service';
 
 @Global()
 @Module({
@@ -18,7 +19,8 @@ import { JwtModule } from '@nestjs/jwt';
       inject: [ConfigService],
     }),
   ],
-  exports: [JwtModule]
+  providers: [DiscordLogger],
+  exports: [JwtModule, DiscordLogger]
 })
 export class SharedModule { }
 
