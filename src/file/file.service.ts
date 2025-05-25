@@ -1,20 +1,23 @@
 import { Injectable } from '@nestjs/common';
 import * as Minio from 'minio';
+import { SystemConfigService } from 'src/system-config/system-config.service';
 
 @Injectable()
 export class FileService {
-  private minioClient: Minio.Client;
-  constructor() {
-    this.minioClient = new Minio.Client({
-      endPoint: '288b-2401-d800-91c1-d3f1-c449-6648-7c0a-aee2.ngrok-free.app',
-      useSSL: true,
-      accessKey: 'WuPiCTOhLJaIKz7LbzTK',
-      secretKey: 'xz7WkmlpLsIwaUfzR38se1dJzSNg3wITXDYRJmVj',
-    })
+  private readonly BE_CONFIG_KEY = 'be.config';
+  constructor(private readonly systemConfigService: SystemConfigService) {
   }
 
   async getPresignedUrl(userId: string, fileName: string) {
-    const url = await this.minioClient.presignedPutObject("user", `${userId}/${fileName}`);
+    const beConfig = await this.systemConfigService.getConfigValueByKey(this.BE_CONFIG_KEY);
+    const minioClient = new Minio.Client({
+      endPoint: beConfig.minio.endPoint,
+      useSSL: beConfig.minio.useSSL,
+      accessKey: beConfig.minio.accessKey,
+      secretKey: beConfig.minio.secretKey,
+    });
+
+    const url = await minioClient.presignedPutObject("user", `${userId}/${fileName}`);
     console.log(url);
     return url;
   }
