@@ -1,7 +1,7 @@
 version: "3.8"
 services:
   postgres:
-    image: postgres:15
+    image: postgres:14
     container_name: cxxc_db
     restart: always
     environment:
