@@ -30,7 +30,7 @@ services:
       - "9001:9001"
     environment:
       MINIO_ROOT_USER: cxxc
-      MINIO_ROOT_PASSWORD: JdbP9QQs77w5
+      MINIO_ROOT_PASSWORD: xz7WkmlpLsIwaUfzR38se1dJzSNg3wITXDYRJmVj
     volumes:
       - minio_data:/data
     networks:

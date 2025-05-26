@@ -20,7 +20,7 @@ services:
       # MinIO
       MINIO_ENDPOINT: https://file.cxxc.vn
       MINIO_ACCESS_KEY: cxxc
-      MINIO_SECRET_KEY: JdbP9QQs77w5
+      MINIO_SECRET_KEY: xz7WkmlpLsIwaUfzR38se1dJzSNg3wITXDYRJmVj
 
       # RabbitMQ
       RABBITMQ_URI: amqp://cxxc:qAxg6mB0x8Jw@rabbitmq:5672
