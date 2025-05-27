@@ -82,6 +82,10 @@ export class SystemConfigService {
   }
 
   async upsert(key: string, updateDto: CreateSystemConfigDto): Promise<SystemConfig> {
+    if (updateDto.isEncrypted) {
+      updateDto.value = this.encryptValue(updateDto.value);
+    }
+
     await this.systemConfigRepository.upsert({ key, ...updateDto }, ['key']);
     return this.systemConfigRepository.findOne({ where: { key } });
   }

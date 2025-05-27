@@ -1,17 +1,16 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { SystemConfigService } from './system-config.service';
 import { ConfigType, DataType } from './entity/system-config.entity';
-
+import { DiscordLogger } from 'src/shared/services/discord.log.service';
 @Injectable()
 export class SystemConfigInitService implements OnModuleInit {
   private readonly FE_CONFIG_KEY = 'fe.config';
   private readonly BE_CONFIG_KEY = 'be.config';
   private readonly logger = new Logger(SystemConfigInitService.name);
-  constructor(private readonly systemConfigService: SystemConfigService) { }
+  constructor(private readonly systemConfigService: SystemConfigService, private readonly discordLogger: DiscordLogger) { }
 
   async onModuleInit() {
-    await this.addFeConfig();
-    await this.addBeConfig();
+    await Promise.all([this.addFeConfig(), this.addBeConfig()]);
   }
 
   private async addFeConfig() {
@@ -44,8 +43,10 @@ export class SystemConfigInitService implements OnModuleInit {
       });
 
       this.logger.log('Frontend config initialized successfully');
+      this.discordLogger.log('Frontend config initialized successfully');
     } catch (error) {
       this.logger.error('Error initializing frontend config:', error);
+      this.discordLogger.error('Error initializing frontend config:', error);
     }
   }
 
@@ -71,8 +72,10 @@ export class SystemConfigInitService implements OnModuleInit {
       });
 
       this.logger.log('Backend config initialized successfully');
+      this.discordLogger.log('Backend config initialized successfully');
     } catch (error) {
       this.logger.error('Error initializing backend config:', error);
+      this.discordLogger.error('Error initializing backend config:', error);
     }
   }
 } 
