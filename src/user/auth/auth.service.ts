@@ -13,14 +13,16 @@ export class AuthService {
     const existingUser = await this.userService.findByFirebaseId(firebaseId);
 
     if (existingUser) {
-      const payload = { sub: existingUser.id, fullname: existingUser.fullname, exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30 };
+      const payload = {
+        sub: existingUser.id,
+        fullname: existingUser.fullname,
+        exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30
+      };
       const data = {
         accessToken: await this.jwtService.signAsync(payload),
       };
-      console.log("🚀 ~ AuthService ~ loginWithFirebase ~ data:", data)
 
       return data;
     }
   }
 }
- 

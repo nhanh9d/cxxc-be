@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, MiddlewareConsumer, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
@@ -10,6 +10,7 @@ import { SharedModule } from './shared/shared.module';
 import { NotificationModule } from './notification/notification.module';
 import { SystemConfigModule } from './system-config/system-config.module';
 import { AppDataSource } from '../data-source';
+import { LogRequestHeaderMiddleware } from './shared/middleware/log-request-header.middleware';
 
 @Module({
   imports: [
@@ -25,4 +26,8 @@ import { AppDataSource } from '../data-source';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(LogRequestHeaderMiddleware).forRoutes('*');
+  }
+}
