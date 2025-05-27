@@ -1,9 +1,12 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { LogRequestHeaderMiddleware } from './shared/middleware/log-request-header.middleware';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  app.use(new LogRequestHeaderMiddleware().use);
 
   const config = new DocumentBuilder()
     .setTitle('Chơi xe xe chơi')
