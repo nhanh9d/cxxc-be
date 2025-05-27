@@ -16,7 +16,10 @@ services:
       DB_PASSWORD: 6jie8yO8nt85
       DB_DATABASE: cxxc
       SECRET: CXXC321
-      
+
+      # Encryption
+      ENCRYPTION_KEY: YZaQsaujUmZDXlA87OaoIXWtGPwe2qnA
+
       # MinIO
       MINIO_ENDPOINT: https://file.cxxc.vn
       MINIO_ACCESS_KEY: cxxc

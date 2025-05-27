@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SystemConfig, ConfigType, DataType } from './entity/system-config.entity';
@@ -7,6 +7,8 @@ import * as crypto from 'crypto';
 
 @Injectable()
 export class SystemConfigService {
+  private readonly logger = new Logger(SystemConfigService.name);
+
   constructor(
     @InjectRepository(SystemConfig)
     private readonly systemConfigRepository: Repository<SystemConfig>,
@@ -14,6 +16,8 @@ export class SystemConfigService {
   //YZaQsaujUmZDXlA87OaoIXWtGPwe2qnA/VFxdXtc9las54bLdw7pGYOtO7PZJEJV
 
   private encryptValue(value: string): string {
+    this.logger.log(`Encrypting value: ${value}`);
+    this.logger.log(`Encryption key: ${process.env.ENCRYPTION_KEY}`);
     const algorithm = 'aes-256-cbc';
     const key = Buffer.from(process.env.ENCRYPTION_KEY || 'YZaQsaujUmZDXlA87OaoIXWtGPwe2qnA', 'utf8');
     const iv = crypto.randomBytes(16);
@@ -24,6 +28,8 @@ export class SystemConfigService {
   }
 
   private decryptValue(encryptedValue: string): string {
+    this.logger.log(`Decrypting value: ${encryptedValue}`);
+    this.logger.log(`Decryption key: ${process.env.ENCRYPTION_KEY}`);
     const algorithm = 'aes-256-cbc';
     const key = Buffer.from(process.env.ENCRYPTION_KEY || 'YZaQsaujUmZDXlA87OaoIXWtGPwe2qnA', 'utf8');
     const [ivHex, encrypted] = encryptedValue.split(':');
