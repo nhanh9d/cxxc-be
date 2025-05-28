@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entity/user.entity';
-import { Repository } from 'typeorm';
+import { IsNull, Not, Repository } from 'typeorm';
 import { UserDto } from './dto/user.dto';
+import { AuthService } from './auth/auth.service';
 
 @Injectable()
 export class UserService {
@@ -11,7 +12,9 @@ export class UserService {
    */
   constructor(
     @InjectRepository(User)
-    private usersRepository: Repository<User>) {
+    private usersRepository: Repository<User>,
+    private authService: AuthService
+  ) {
   }
 
   async findByFirebaseId(firebaseId: string) {
@@ -28,10 +31,12 @@ export class UserService {
     let hasUser = await this.existFirebaseId(user.firebaseId);
 
     if (!hasUser) {
-      return await this.usersRepository.save({ ...user });
+      await this.usersRepository.save({ ...user });
     }
 
-    return await this.findByFirebaseId(user.firebaseId);
+    const entity = await this.findByFirebaseId(user.firebaseId);
+
+    return { ...entity, token: await this.authService.signToken(entity) }
   }
 
   async updateUser(user: UserDto) {
@@ -57,5 +62,9 @@ export class UserService {
 
   async updatePushToken(userId: number, pushToken: string) {
     await this.usersRepository.update(userId, { pushToken });
+  }
+
+  async findUsersHasPushToken() {
+    return await this.usersRepository.find({ where: { pushToken: Not(IsNull()) } });
   }
 }

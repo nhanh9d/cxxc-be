@@ -1,28 +1,35 @@
 import { Injectable } from '@nestjs/common';
-import { UserService } from '../user.service';
 import { JwtService } from '@nestjs/jwt';
-
+import { User } from '../entity/user.entity';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly userService: UserService,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
     private readonly jwtService: JwtService) {
   }
 
   async loginWithFirebase(firebaseId: string) {
-    const existingUser = await this.userService.findByFirebaseId(firebaseId);
+    const existingUser = await this.userRepository.findOneBy({ firebaseId });
 
     if (existingUser) {
-      const payload = {
-        sub: existingUser.id,
-        fullname: existingUser.fullname,
-        exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30
-      };
       const data = {
-        accessToken: await this.jwtService.signAsync(payload),
+        accessToken: await this.signToken(existingUser),
       };
 
       return data;
     }
+  }
+
+  async signToken(user: User) {
+    const payload = {
+      sub: user.id,
+      fullname: user.fullname,
+      exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30
+    };
+
+    return this.jwtService.signAsync(payload);
   }
 }
