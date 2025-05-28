@@ -21,6 +21,7 @@ services:
       ENCRYPTION_KEY: YZaQsaujUmZDXlA87OaoIXWtGPwe2qnA
 
       # MinIO
+      FE_FILE_URL: https://file.cxxc.vn
       MINIO_ENDPOINT: file.cxxc.vn
       MINIO_ACCESS_KEY: cxxc
       MINIO_SECRET_KEY: xz7WkmlpLsIwaUfzR38se1dJzSNg3wITXDYRJmVj
