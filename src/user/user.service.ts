@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entity/user.entity';
 import { IsNull, Not, Repository } from 'typeorm';
@@ -43,13 +43,13 @@ export class UserService {
     const existingUser = await this.findByFirebaseId(user.firebaseId);
 
     if (!existingUser) {
-      return false;
+      throw new NotFoundException('User not found');
     }
 
-    const updatedUser = { ...existingUser, ...user };
-    const updateResult = await this.usersRepository.save(updatedUser);
+    const updatedUser: User = { ...existingUser, ...user };
+    await this.usersRepository.save(updatedUser);
 
-    return !!updateResult;
+    return { ...updatedUser, accessToken: await this.authService.signToken(updatedUser) };
   }
 
   async findById(id: number): Promise<User | null> {
