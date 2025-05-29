@@ -36,7 +36,7 @@ export class UserService {
 
     const entity = await this.findByFirebaseId(user.firebaseId);
 
-    return { ...entity, token: await this.authService.signToken(entity) }
+    return { ...entity, accessToken: await this.authService.signToken(entity) }
   }
 
   async updateUser(user: UserDto) {
