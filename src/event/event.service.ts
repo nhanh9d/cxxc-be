@@ -36,7 +36,7 @@ export class EventService {
   }
 
   async getEventStatistic(id: number) {
-    const event = await this.eventRepository.findOne({ where: { id }, relations: ['creator', 'members'] });
+    const event = await this.eventRepository.findOne({ where: { id }, relations: ['creator', 'members', 'members.user'] });
 
     if (!event) {
       throw new Error('Không tìm thấy chuyến đi');
@@ -47,7 +47,7 @@ export class EventService {
 
     this.discordLogger.log(`event detail: ${JSON.stringify(event)}`);
 
-    return { event, invitedNo, rejectedNo }
+    return { event, invitedNo, rejectedNo };
   }
 
   async getPagedData(page: number, limit: number, mine: boolean, userId: number) {
