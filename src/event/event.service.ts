@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { EditEventDto, EventDto, EventMemberDto, RegisterEventDto } from './dto/event.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Event } from './entity/event.entity';
@@ -39,7 +39,7 @@ export class EventService {
     const event = await this.eventRepository.findOne({ where: { id }, relations: ['creator', 'members', 'members.user'] });
 
     if (!event) {
-      throw new Error('Không tìm thấy chuyến đi');
+      throw new HttpException('Không tìm thấy chuyến đi', HttpStatus.BAD_REQUEST);
     }
 
     const invitedNo = await this.eventInvitationRepository.count({ where: { event } });
@@ -109,12 +109,12 @@ export class EventService {
   async registerEvent(payload: RegisterEventDto, memberToken: TokenInformationDto) {
     const user = await this.userService.findById(memberToken.sub);
     if (!user) {
-      throw new Error("Người dùng không tồn tại");
+      throw new HttpException("Người dùng không tồn tại", HttpStatus.BAD_REQUEST);
     }
 
     const event = await this.eventRepository.findOne({ where: { id: payload.id } });
     if (!event) {
-      throw new Error('Không tìm thấy chuyến đi');
+      throw new HttpException('Không tìm thấy chuyến đi', HttpStatus.BAD_REQUEST);
     }
 
     const existingMember = await this.eventMemberRepository.findOne({
@@ -124,7 +124,7 @@ export class EventService {
       }
     });
     if (existingMember) {
-      throw new Error('Bạn đã đăng ký chuyến đi này rồi');
+      throw new HttpException('Bạn đã đăng ký chuyến đi này rồi', HttpStatus.BAD_REQUEST);
     }
 
     const member = await this.eventMemberRepository.save({
