@@ -102,7 +102,7 @@ export class EventService {
       slug
     });
 
-    await this.rabbitMQService.emit(RMQ_PATTERNS.EVENT.UPDATED, updatedEvent);
+    // await this.rabbitMQService.emit(RMQ_PATTERNS.EVENT.UPDATED, updatedEvent);
     return updatedEvent;
   }
 
@@ -134,13 +134,13 @@ export class EventService {
       event
     });
 
-    await this.rabbitMQService.emit(RMQ_PATTERNS.EVENT.MEMBER_JOINED, {
-      eventName: event.name,
-      userId: memberToken.sub,
-      fullname: user.fullname,
-      avatar: user.profileImages ? user.profileImages[0] : null,
-      joinedAt: member.createdAt
-    });
+    // await this.rabbitMQService.emit(RMQ_PATTERNS.EVENT.MEMBER_JOINED, {
+    //   eventName: event.name,
+    //   userId: memberToken.sub,
+    //   fullname: user.fullname,
+    //   avatar: user.profileImages ? user.profileImages[0] : null,
+    //   joinedAt: member.createdAt
+    // });
 
     return member;
   }
@@ -161,12 +161,12 @@ export class EventService {
       user: { id: user.sub }
     });
 
-    if (result.affected > 0) {
-      await this.rabbitMQService.emit(RMQ_PATTERNS.EVENT.MEMBER_LEFT, {
-        eventId,
-        userId: user.sub
-      });
-    }
+    // if (result.affected > 0) {
+    //   await this.rabbitMQService.emit(RMQ_PATTERNS.EVENT.MEMBER_LEFT, {
+    //     eventId,
+    //     userId: user.sub
+    //   });
+    // }
 
     return result;
   }
@@ -190,10 +190,10 @@ export class EventService {
 
     await this.eventMemberRepository.remove(member);
 
-    await this.rabbitMQService.emit(RMQ_PATTERNS.EVENT.MEMBER_LEFT, {
-      eventId,
-      userId: user.sub
-    });
+    // await this.rabbitMQService.emit(RMQ_PATTERNS.EVENT.MEMBER_LEFT, {
+    //   eventId,
+    //   userId: user.sub
+    // });
 
     return { message: 'Đã rời khỏi chuyến đi thành công' };
   }

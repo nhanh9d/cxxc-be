@@ -42,9 +42,9 @@ export class EventSchedulerService {
     // Gửi message queue cho các event đã hết hạn
     for (const event of expiredEvents) {
       this.logger.debug(`Đang gửi message queue cho event hết hạn có ID: ${event.id}`);
-      await this.rabbitMQService.emit(RMQ_PATTERNS.EVENT.FINISHED, {
-        eventId: event.id,
-      });
+      // await this.rabbitMQService.emit(RMQ_PATTERNS.EVENT.FINISHED, {
+      //   eventId: event.id,
+      // });
     }
 
     this.logger.log(`Updated ${expiredEvents.length} expired events to finished status`);
