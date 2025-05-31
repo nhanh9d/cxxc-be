@@ -108,7 +108,6 @@ export class EventService {
 
   async registerEvent(payload: RegisterEventDto, memberToken: TokenInformationDto) {
     const user = await this.userService.findById(memberToken.sub);
-    this.discordLogger.log(JSON.stringify(user));
     if (!user) {
       throw new HttpException("Người dùng không tồn tại", HttpStatus.BAD_REQUEST);
     }
@@ -170,5 +169,32 @@ export class EventService {
     }
 
     return result;
+  }
+
+  async unjoinEvent(eventId: number, user: TokenInformationDto) {
+    const event = await this.eventRepository.findOne({ where: { id: eventId } });
+    if (!event) {
+      throw new HttpException('Không tìm thấy chuyến đi', HttpStatus.BAD_REQUEST);
+    }
+
+    const member = await this.eventMemberRepository.findOne({
+      where: {
+        event: { id: eventId },
+        user: { id: user.sub }
+      }
+    });
+
+    if (!member) {
+      throw new HttpException('Bạn chưa tham gia chuyến đi này', HttpStatus.BAD_REQUEST);
+    }
+
+    await this.eventMemberRepository.remove(member);
+
+    await this.rabbitMQService.emit(RMQ_PATTERNS.EVENT.MEMBER_LEFT, {
+      eventId,
+      userId: user.sub
+    });
+
+    return { message: 'Đã rời khỏi chuyến đi thành công' };
   }
 }

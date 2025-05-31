@@ -82,4 +82,14 @@ export class EventController {
     console.log('Authenticated User:', request.user);
     return await this.eventService.updateEvent(payload, request.user);
   }
+
+  @Post(':id/unjoin')
+  @ApiResponse({ status: 200, description: 'Rời khỏi chuyến đi thành công' })
+  @ApiResponse({ status: 401, description: 'Chưa đăng nhập' })
+  @ApiResponse({ status: 404, description: 'Không tìm thấy chuyến đi' })
+  @ApiResponse({ status: 400, description: 'Bạn chưa tham gia chuyến đi này' })
+  @ApiResponse({ status: 500, description: 'Lỗi server' })
+  async unjoinEvent(@Param('id') id: number, @Req() request: Request) {
+    return await this.eventService.unjoinEvent(id, request.user);
+  }
 }
