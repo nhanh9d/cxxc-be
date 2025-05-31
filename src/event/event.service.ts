@@ -108,6 +108,7 @@ export class EventService {
 
   async registerEvent(payload: RegisterEventDto, memberToken: TokenInformationDto) {
     const user = await this.userService.findById(memberToken.sub);
+    this.discordLogger.log(JSON.stringify(user));
     if (!user) {
       throw new HttpException("Người dùng không tồn tại", HttpStatus.BAD_REQUEST);
     }
