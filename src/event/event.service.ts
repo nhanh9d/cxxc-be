@@ -139,7 +139,7 @@ export class EventService {
       eventName: event.name,
       userId: memberToken.sub,
       fullname: user.fullname,
-      avatar: user.profileImages[0],
+      avatar: user.profileImages ? user.profileImages[0] : null,
       joinedAt: member.createdAt
     });
 
