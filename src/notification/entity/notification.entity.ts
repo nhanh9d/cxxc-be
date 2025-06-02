@@ -6,6 +6,7 @@ export enum EventNotificationType {
   EVENT_INVITATION = "EVENT_INVITATION",
   EVENT_UPDATE = "EVENT_UPDATE",
   EVENT_CANCEL = "EVENT_CANCEL",
+  EVENT_CREATED = "EVENT_CREATED",
 }
 
 export enum EventMemberNotificationType {

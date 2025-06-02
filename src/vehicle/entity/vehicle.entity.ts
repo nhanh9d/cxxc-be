@@ -21,7 +21,7 @@ export class Vehicle extends BaseEntity {
   cylinderCapacity?: string;
 
   @Column({ type: "enum", enum: VehicleType, default: VehicleType.motorbike })
-  status: VehicleType;
+  type: VehicleType;
 
   @Column('varchar', { nullable: true, array: true })
   images: string[];

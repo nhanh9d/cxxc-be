@@ -58,4 +58,10 @@ export class User extends BaseEntity {
 
   @OneToMany(() => EventInvitation, invitation => invitation.invitor)
   sentInvitations: EventInvitation[];
+
+  @Column('varchar', { nullable: true, array: true })
+  interests: string[];
+
+  @Column({ nullable: true })
+  bio?: string;
 }

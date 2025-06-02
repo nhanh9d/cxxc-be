@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { EventMemberNotificationType, EventNotificationType, Notification, NotificationType } from './entity/notification.entity';
@@ -7,8 +7,11 @@ import { RMQ_PATTERNS } from '../rabbitmq/constants';
 import { UserService } from '../user/user.service';
 import admin from '../config/firebase.config';
 import { EventService } from 'src/event/event.service';
+import { Event } from 'src/event/entity/event.entity';
+
 @Injectable()
 export class NotificationService {
+  private readonly logger = new Logger(NotificationService.name);
   constructor(
     @InjectRepository(Notification)
     private notificationRepository: Repository<Notification>,
@@ -23,15 +26,19 @@ export class NotificationService {
     content: string;
     metadata: Record<string, any>;
     userId: number;
+    pushToken?: string;
   }) {
-    const notification = this.notificationRepository.create(data);
+    const { pushToken, ...rest } = data;
+    const notification = this.notificationRepository.create(rest);
     await this.notificationRepository.save(notification);
+    this.logger.log(`Notification created: ${notification.id}`);
 
     // Emit notification created event with user's pushToken
-    await this.rabbitMQService.emit(RMQ_PATTERNS.NOTIFICATION.CREATED, {
+    const value = await this.rabbitMQService.emit(RMQ_PATTERNS.NOTIFICATION.CREATED, {
       notificationId: notification.id,
+      pushToken,
     });
-
+    this.logger.log(`Notification created event emitted: ${value}`);
     return notification;
   }
 
@@ -58,19 +65,22 @@ export class NotificationService {
     });
   }
 
-  async handleNotificationCreated(notificationId: string) {
+  async handleNotificationCreated(notificationId: string, pushToken?: string) {
+    if (!pushToken || pushToken === '') {
+      return;
+    }
+
     const notification = await this.notificationRepository.findOne({
       where: { id: notificationId },
     });
-    const user = await this.userService.findById(notification.userId);
 
-    if (!user?.pushToken) {
+    if (!notification) {
       return;
     }
 
     try {
       await admin.messaging().send({
-        token: user.pushToken,
+        token: pushToken,
         notification: {
           title: notification.title,
           body: notification.content,
@@ -132,6 +142,26 @@ export class NotificationService {
           eventId: event.id,
         },
         userId: member.user.id,
+      }));
+    }
+
+    await Promise.all(promises);
+  }
+
+  async handleEventCreated(event: Event) {
+    const promises: Promise<Notification>[] = [];
+    const users = await this.userService.findUsersHasPushToken();
+    this.logger.log(`Found ${users.length} users with push token`);
+    for (const user of users) {
+      promises.push(this.createNotification({
+        type: EventNotificationType.EVENT_CREATED,
+        title: "Chuyến đi mới đã được tạo",
+        content: `Chuyến đi "${event.name}" đã được tạo`,
+        metadata: {
+          eventId: event.id,
+        },
+        userId: user.id,
+        pushToken: user.pushToken,
       }));
     }
 
