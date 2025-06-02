@@ -27,8 +27,8 @@ export class UserController {
 
   @Public()
   @Put("/firebase/:id")
-  async updateUser(@Body() payload: UserDto): Promise<User> {
-    return await this.userService.updateUser(payload);
+  async updateUser(@Body() payload: UserDto, @Param("id") id: string): Promise<User> {
+    return await this.userService.updateUser(payload, id);
   }
 
   @Get('me')

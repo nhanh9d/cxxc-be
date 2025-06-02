@@ -4,6 +4,7 @@ import { User } from './entity/user.entity';
 import { IsNull, Not, Repository } from 'typeorm';
 import { UserDto } from './dto/user.dto';
 import { AuthService } from './auth/auth.service';
+import { DiscordLogger } from '../shared/services/discord.log.service';
 
 @Injectable()
 export class UserService {
@@ -13,7 +14,8 @@ export class UserService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
-    private authService: AuthService
+    private authService: AuthService,
+    private discordLogger: DiscordLogger
   ) {
   }
 
@@ -39,8 +41,9 @@ export class UserService {
     return { ...entity, accessToken: await this.authService.signToken(entity) }
   }
 
-  async updateUser(user: UserDto) {
-    const existingUser = await this.findByFirebaseId(user.firebaseId);
+  async updateUser(user: UserDto, id: string) {
+    const existingUser = await this.findByFirebaseId(id);
+    this.discordLogger.log(JSON.stringify(existingUser));
 
     if (!existingUser) {
       throw new NotFoundException('User not found');
