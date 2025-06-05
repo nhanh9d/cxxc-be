@@ -22,4 +22,11 @@ export class VehicleService {
 
     return entity;
   }
+
+  async getVehiclesByUserId(userId: number) {
+    return this.vehicleRepository.find({
+      where: { user: { id: userId } },
+      relations: ['user']
+    });
+  }
 }
