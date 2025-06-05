@@ -20,7 +20,7 @@ export class UserService {
   }
 
   async findByFirebaseId(firebaseId: string) {
-    return await this.usersRepository.findOneBy({ firebaseId });
+    return await this.usersRepository.findOne({ where: { firebaseId }, relations: ['vehicles'] });
   }
 
   async existFirebaseId(firebaseId: string) {
@@ -56,7 +56,7 @@ export class UserService {
   }
 
   async findById(id: number): Promise<User | null> {
-    return await this.usersRepository.findOneBy({ id });
+    return await this.usersRepository.findOne({ where: { id }, relations: ['vehicles'] });
   }
 
   async findByPushToken(pushToken: string) {
